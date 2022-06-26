@@ -26,18 +26,29 @@ namespace OrderAPI.Repositories
             await orderCollection.DeleteOneAsync(filter);
         }
 
-        public async Task<Order> GetOrderAsync(Guid? id, string? customerFirstname, string? customerLastName, string? customerPhoneNumber)
+        public async Task<Order> GetOrderAsync(Guid id)
         {
             var filter = filterBuilder.Eq(item => item.Id, id);
-            //filter &= (Builders<Order>.Filter.Eq(item => item.User.Firstname, customerFirstname) 
-            //    | Builders<Order>.Filter.Eq(item => item.User.Lastname, customerLastName)
-            //    | Builders<Order>.Filter.Eq(item=>item.User.TelephoneNumber, customerPhoneNumber));
             return await orderCollection.Find(filter).SingleOrDefaultAsync();
 
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersAsync()
+        public async Task<IEnumerable<Order>> GetOrdersAsync(string? customerFirstname, string? customerLastname, string phoneNumber)
         {
+            var filterWithLastname = filterBuilder.Eq(item => item.User.Lastname, customerLastname);
+            var filterWithFirstname = filterBuilder.Eq(item => item.User.Firstname, customerFirstname);
+            var filterWithPhoneNumber = filterBuilder.Eq(item => item.User.TelephoneNumber, phoneNumber);
+            if(customerLastname is not null) {
+                return await orderCollection.Find(filterWithLastname).ToListAsync();
+            }
+            if (customerFirstname is not null)
+            {
+                return await orderCollection.Find(filterWithFirstname).ToListAsync();
+            }
+            if (phoneNumber is not null)
+            {
+                return await orderCollection.Find(filterWithPhoneNumber).ToListAsync();
+            }
             return await orderCollection.Find(new BsonDocument()).ToListAsync();
         }
 

@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OrderAPI.Dtos;
 using OrderAPI.Dtos.CreateOrderDto;
-using OrderAPI.Dtos.GetOrderDto;
 using OrderAPI.Dtos.UpdateOrderDto;
 using OrderAPI.Entities;
-using OrderAPI.Helpers;
 using OrderAPI.Repositories;
 
 namespace OrderAPI.Controllers
@@ -19,15 +16,15 @@ namespace OrderAPI.Controllers
             this.repository = repository;
         }
         [HttpGet]
-        public async Task<IEnumerable<Order>> GetOrdersAsync()
+        public async Task<IEnumerable<Order>> GetOrdersAsync(string? firstname, string? lastname, string? phoneNumber)
         {
-            var orders =await repository.GetOrdersAsync();
+            var orders =await repository.GetOrdersAsync(firstname,lastname,phoneNumber);
             return orders;
         }
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrderAsync(Guid? id,string? customerFirstname, string? customerLastName, string? customerPhoneNumber)
+        public async Task<ActionResult<Order>> GetOrderAsync(Guid id)
         {
-            var order = await repository.GetOrderAsync(id,customerFirstname, customerLastName, customerPhoneNumber);
+            var order = await repository.GetOrderAsync(id);
             if(order is null)
             {
                 return NotFound();
@@ -71,7 +68,7 @@ namespace OrderAPI.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateOrderAsync(Guid id, UpdateOrderDto order)
         {
-            var orderToUpdate = repository.GetOrderAsync(id,null,null,null);
+            var orderToUpdate = repository.GetOrderAsync(id);
             if(orderToUpdate is null)
             {
                 return NotFound();
@@ -108,7 +105,7 @@ namespace OrderAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteOrderAsync(Guid id)
         {
-            var orderToUpdate = repository.GetOrderAsync(id, null, null, null);
+            var orderToUpdate = repository.GetOrderAsync(id);
             if (orderToUpdate is null)
             {
                 return NotFound();
